@@ -1,0 +1,27 @@
+  {
+    "name": "Yakipper",
+    "version": "1.0.0",
+    "description": "This extension helps you copy and paste URL including Japanese",
+
+    "permissions": [
+        "tabs",
+        "clipboardWrite"
+      ],
+
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/yakisoba_16.png",
+            "32": "images/yakisoba_32.png",
+            "48": "images/yakisoba_64.png",
+            "128": "images/yakisoba_128.png"
+          }
+      },
+      "icons": {
+        "16": "images/yakisoba_16.png",
+        "32": "images/yakisoba_32.png",
+        "48": "images/yakisoba_64.png",
+        "128": "images/yakisoba_128.png"
+      },
+    "manifest_version": 2
+}
