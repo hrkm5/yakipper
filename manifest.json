@@ -1,12 +1,19 @@
   {
     "name": "Yakipper",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "This extension helps you copy and paste URL including Japanese",
 
     "permissions": [
         "tabs",
         "clipboardWrite"
       ],
+
+    "content_scripts": [
+       {
+        "matches": ["https://support.box.com/*"],
+        "js": ["content.js"]
+        }
+    ],
 
     "browser_action": {
         "default_popup": "popup.html",

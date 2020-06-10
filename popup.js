@@ -11,6 +11,14 @@ const extract_box_support_url = (rawUrl) => {
     }
   }
 
+const Switch_Language = () => {
+  chrome.tabs.query( {active:true, currentWindow:true}, function(tabs){
+    chrome.tabs.sendMessage(tabs[0].id, {message: 'Switching this page'}, function(language_url){
+      console.log(language_url);
+    });
+  });
+}
+
 const Get_URLnTitle = () => {
     // Get the current page's URL and Title
     // https://developer.chrome.com/extensions/tabs
@@ -45,4 +53,5 @@ const copy = () => {
 window.addEventListener('load',()=>{
     Get_URLnTitle();
     document.querySelector("#copy").addEventListener("click", copy);
+    document.querySelector("#switch").addEventListener("click", Switch_Language)
   })
