@@ -1,6 +1,6 @@
   {
     "name": "Yakipper",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "This extension helps you copy and paste URL including Japanese",
 
     "permissions": [
@@ -14,6 +14,34 @@
         "js": ["content.js"]
         }
     ],
+    
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+    },
+
+    "commands": {
+      "toggel-switch-language": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+S",
+          "windows": "Ctrl+Shift+S",
+          "mac": "Command+Shift+S",
+          "chromeos": "Ctrl+Shift+S",
+          "linux": "Ctrl+Shift+S"
+        },
+        "description": "Switch Language"
+      },
+      "_execute_browser_action": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+Y",
+          "windows": "Ctrl+Shift+Y",
+          "mac": "Command+Shift+Y",
+          "chromeos": "Ctrl+Shift+Y",
+          "linux": "Ctrl+Shift+Y"
+        },
+        "description": "Copy URL&Title"
+      }
+    },
 
     "browser_action": {
         "default_popup": "popup.html",
