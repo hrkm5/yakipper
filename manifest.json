@@ -10,7 +10,7 @@
 
     "content_scripts": [
        {
-        "matches": ["https://support.box.com/*"],
+        "matches": ["https://support.box.com/*","https://developer.box.com/*","https://ja.developer.box.com/*"],
         "js": ["content.js"]
         }
     ],
