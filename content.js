@@ -31,6 +31,57 @@ const switch_language = () => {
     location.href = redirect_url;
     console.log('Switched to English ' + redirect_url);
   }
+  console.log('unavailable site');
+}
+
+/*
+Copy_to_Clipboard() 
+
+Yakipper is currently using Clipboard API
+Now Chrome can only copy plaintext or png image to clipboard.
+https://web.dev/async-clipboard/
+
+Compatibility :
+https://developer.mozilla.org/en-US/docs/Web/API/Clipboard#browser_compatibility
+*/
+
+const Copy_to_Clipboard = () => {
+  let current_url = location.href
+  let currenct_title = document.title
+
+  // decodeURL if needed
+  if (decodeURI(current_url).length < location.href.length) {
+    current_url = decodeURI(current_url)
+    console.log('decoded URL')
+  }
+  
+  // if text is being selected, copy it to clilpboard as well
+  if(window.getSelection){
+    // copy to clipboard
+    async function copyPageUrl() {
+      try {
+        await navigator.clipboard.writeText('* ' + currenct_title + '\n' + current_url + '\n' + window.getSelection().toString());
+        console.log('Page URL copied to clipboard');
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
+    }
+    copyPageUrl().then(result => {
+      console.log(result);
+    });
+  } else {
+    async function copyPageUrl() {
+      try {
+        await navigator.clipboard.writeText('* ' + currenct_title + '\n' + current_url);
+        console.log('Page URL copied to clipboard');
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
+    }
+    copyPageUrl().then(result => {
+      console.log(result);
+    });
+  }
 }
 
 chrome.runtime.onMessage.addListener(
@@ -38,6 +89,10 @@ chrome.runtime.onMessage.addListener(
     if(request.greeting == "switch_language"){
       console.log("Got a swtich request")
       switch_language();
+      sendResponse({farewell: "Complete"});
+    } else if(request.greeting == "copy_clipboard") {
+      console.log("content.js : Starting copy_to_clipboard()")
+      Copy_to_Clipboard();
       sendResponse({farewell: "Complete"});
     }
 });
