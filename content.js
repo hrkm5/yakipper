@@ -34,12 +34,31 @@ const switch_language = () => {
   console.log('unavailable site');
 }
 
+var selectElement = function(elem) {
+  // 選択範囲を操作するRangeオブジェクトを用意する
+  var range = document.createRange();
+
+  // 選択範囲を設定する（引数に選択状態にする要素を指定）
+  range.selectNode(elem);
+
+  // ユーザーの選択状態を得る
+  var selection = document.getSelection();
+
+  // 現在の選択状態を解除する
+  selection.removeAllRanges();
+
+  // 対象要素を選択状態にする
+  selection.addRange(range);
+};
+
 /*
 Copy_to_Clipboard() 
 
 Yakipper is currently using Clipboard API
-Now Chrome can only copy plaintext or png image to clipboard.
 https://web.dev/async-clipboard/
+
+From 87, Chrome started supporting text/html MIME :
+https://www.chromestatus.com/feature/5357049665814528
 
 Compatibility :
 https://developer.mozilla.org/en-US/docs/Web/API/Clipboard#browser_compatibility
@@ -60,20 +79,40 @@ const Copy_to_Clipboard = () => {
     // copy to clipboard
     async function copyPageUrl() {
       try {
-        await navigator.clipboard.writeText('* ' + currenct_title + '\n' + current_url + '\n' + window.getSelection().toString());
-        console.log('Page URL copied to clipboard');
+        const urlntitle = '* ' + currenct_title + '\n' + current_url + '\n';
+
+        // Gather selected text and format
+        let html = "";
+        let sel = window.getSelection();
+        console.log(sel);
+
+        if (sel.rangeCount) {
+            const container = document.createElement("div");
+            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                container.appendChild(sel.getRangeAt(i).cloneContents());
+            }
+            html = container.innerHTML;
+        }
+        // Write to clipboard 
+        const blob = new Blob([urlntitle + html],{type : "text/html"});
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob
+          })
+        ]);
+        console.log('Page URL & selected text are copied to clipboard');
       } catch (err) {
         console.error('Failed to copy: ', err);
       }
     }
     copyPageUrl().then(result => {
-      console.log(result);
+         console.log(result);
     });
   } else {
     async function copyPageUrl() {
       try {
-        await navigator.clipboard.writeText('* ' + currenct_title + '\n' + current_url);
-        console.log('Page URL copied to clipboard');
+        await navigator.clipboard.writeText(urlntitle);
+        console.log('Page URL is copied to clipboard');
       } catch (err) {
         console.error('Failed to copy: ', err);
       }
