@@ -34,23 +34,6 @@ const switch_language = () => {
   console.log('unavailable site');
 }
 
-var selectElement = function(elem) {
-  // 選択範囲を操作するRangeオブジェクトを用意する
-  var range = document.createRange();
-
-  // 選択範囲を設定する（引数に選択状態にする要素を指定）
-  range.selectNode(elem);
-
-  // ユーザーの選択状態を得る
-  var selection = document.getSelection();
-
-  // 現在の選択状態を解除する
-  selection.removeAllRanges();
-
-  // 対象要素を選択状態にする
-  selection.addRange(range);
-};
-
 /*
 Copy_to_Clipboard() 
 
