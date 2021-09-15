@@ -67,13 +67,14 @@ https://developer.mozilla.org/en-US/docs/Web/API/Clipboard#browser_compatibility
 const Copy_to_Clipboard = () => {
   let current_url = location.href
   let currenct_title = document.title
-  const urlntitle = '* ' + currenct_title + '\n' + current_url + '\n';
 
   // decodeURL if needed
   if (decodeURI(current_url).length < location.href.length) {
     current_url = decodeURI(current_url)
     console.log('decoded URL')
   }
+
+  const urlntitle = '* ' + currenct_title + '\n' + current_url;
   
   // if text is being selected, copy it to clilpboard as well
   if(window.getSelection){
@@ -93,7 +94,7 @@ const Copy_to_Clipboard = () => {
             html = container.innerHTML;
         }
         // Write to clipboard 
-        const blob = new Blob([urlntitle + html],{type : "text/html"});
+        const blob = new Blob(['* ' + currenct_title + '<br/>' + current_url + '<br/>' + html],{type : "text/html"});
         await navigator.clipboard.write([
           new ClipboardItem({
             [blob.type]: blob
