@@ -67,6 +67,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Clipboard#browser_compatibility
 const Copy_to_Clipboard = () => {
   let current_url = location.href
   let currenct_title = document.title
+  const urlntitle = '* ' + currenct_title + '\n' + current_url + '\n';
 
   // decodeURL if needed
   if (decodeURI(current_url).length < location.href.length) {
@@ -79,8 +80,6 @@ const Copy_to_Clipboard = () => {
     // copy to clipboard
     async function copyPageUrl() {
       try {
-        const urlntitle = '* ' + currenct_title + '\n' + current_url + '\n';
-
         // Gather selected text and format
         let html = "";
         let sel = window.getSelection();
