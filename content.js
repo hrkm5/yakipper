@@ -58,11 +58,11 @@ const Copy_to_Clipboard = () => {
   }
 
   const urlntitle = '* ' + currenct_title + '\n' + current_url;
-  
+
   // if text is being selected, copy it to clilpboard as well
-  if(window.getSelection){
+  if(window.getSelection().toString() != ""){
     // copy to clipboard
-    async function copyPageUrl() {
+    async function copyPageUrl_Selectedtxt() {
       try {
         // Gather selected text and format
         let html = "";
@@ -88,7 +88,7 @@ const Copy_to_Clipboard = () => {
         console.error('Failed to copy: ', err);
       }
     }
-    copyPageUrl().then(result => {
+    copyPageUrl_Selectedtxt().then(result => {
          console.log(result);
     });
   } else {
