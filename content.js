@@ -7,7 +7,7 @@ const switch_language = () => {
   if (document.location.host == BOX_SUPPORT_HOST && document.location.pathname.match(/\/hc\/ja\/*/)){
     let language = document.getElementsByTagName('link');
     for (const element of language) {
-      if (element.getAttribute('hreflang') === 'en') {
+      if (element.getAttribute('hreflang') === 'en-us') {
         const redirect_url = element.getAttribute('href')
         location.href = redirect_url;
         console.log('Switched to English ' + redirect_url);
