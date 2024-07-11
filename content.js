@@ -2,6 +2,8 @@ const BOX_SUPPORT_HOST = "support.box.com" // Box Support Site
 const BOX_DEVELOPER_HOST = "developer.box.com" // Box Developer Site
 const JA_BOX_DEVELOPER_HOST = "ja.developer.box.com" // Japanese Box Developer Site
 
+const _PMSG = PopupMsg.getInstance();
+
 const switch_language = () => {
   console.log("Retriving language...");
   if (document.location.host == BOX_SUPPORT_HOST && document.location.pathname.match(/\/hc\/ja\/*/)){
@@ -96,6 +98,7 @@ const Copy_to_Clipboard = () => {
       try {
         await navigator.clipboard.writeText(urlntitle);
         console.log('Page URL is copied to clipboard');
+        _showPopupMessage(urlntitle);
       } catch (err) {
         console.error('Failed to copy: ', err);
       }
@@ -118,3 +121,25 @@ chrome.runtime.onMessage.addListener(
       sendResponse({farewell: "Complete"});
     }
 });
+
+function _showPopupMessage(__msg, __style) {
+  let header = "Copied to clipboard:\n\n";
+  __msg = header + __msg;
+  let line = __msg.split("\n").length;
+  //let line = __msg.length / 60;
+  let baseheight = 23;
+  let height = baseheight * line;
+  if(height<(baseheight*2)) height = baseheight * 2;//70;
+
+  let style = {"height": height+"px", "width":"500px", "font-size": "13px", "color":"white", "background-color":"dimgray", "vertical-align":"middle", "padding-left":"15px"};
+
+  if(__style) {
+      for(const [key, value] of Object.entries(__style)) {
+          style[key] = value;
+      }
+  }
+
+  _PMSG.showPopupMessage( __msg.replace(/\n/g, "<br />"), 
+      style,
+      1500 );
+}
