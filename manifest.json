@@ -44,7 +44,12 @@
 
     "action": {
         "default_popup": "popup.html",
-        "default_icon": "images/yakisoba_128.png"
+        "default_icon": {
+          "16": "images/yakisoba_16.png",
+          "32": "images/yakisoba_32.png",
+          "48": "images/yakisoba_64.png",
+          "128": "images/yakisoba_128.png"
+        }
       },
       "icons": {
         "16": "images/yakisoba_16.png",
