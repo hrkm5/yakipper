@@ -87,7 +87,7 @@ const Copy_to_Clipboard = () => {
             [blob.type]: blob
           })
         ]);
-        const message = `YYY ${urlntitle}<br/>${textContent}`;
+        const message = `${urlntitle}<br/>${textContent}`;
         _showPopupMessage(message);
         console.log('Page URL & selected text are copied to clipboard');
       } catch (err) {
