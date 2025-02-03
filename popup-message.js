@@ -16,25 +16,24 @@ var PopupMsg = (function() {
 
         const _MODNAME = "PMSG";
 
-        let _debug = false;
-        let _verbose = false;
-
-        let _CARD = {
+        let _deck = {
+            number: 0,
+            heights: {},
+        }
+        const _CARD = {
                 topMargin: 5,
-                offset: 20,
-
-                number: 0,
-                heights: {},
+                offset: 15,
                 prefix: "popupCard",
                 msgPrefix: "popupCardMsg",
-                width: 550,
+                width: 600,
                 height: 47,
-                lineHeight: 15,
                 timeout: 1000,
                 z_index: 999999
             };
 
         function _fadeOut(__targetNode, __durationInMilliSecond, __callbackOnComplete) {
+            if(!__targetNode) return;
+
             let granularity = 10;
             let easing = 1.0 / (__durationInMilliSecond/granularity);
             let opacity = 1;
@@ -74,38 +73,34 @@ var PopupMsg = (function() {
         //////
         //////
         function _getTopPosition( __marginTop ) {
-            var topPosi = __marginTop;
-            for(var index in _CARD.heights ) {
-                topPosi += _CARD.offset + _CARD.heights[index];
+            var position = __marginTop;
+            for(var index in _deck.heights ) {
+                position += _CARD.offset + _deck.heights[index];
             }
-            return topPosi;
+            return position;
         };
 
         function _saveCardHeight( __cardNumber, __cardHeight ) {
-            if(_debug) console.log("["+_MODNAME+"] _saveCardHeight() _cardNumber:"+__cardNumber + " _cardHeight:"+__cardHeight);
-            _CARD.heights[ __cardNumber ] = __cardHeight;
-            for(var key in _CARD.heights) {
-                if(_verbose) console.log("["+_MODNAME+"] _saveCardHeight() key = " + key +" Height = " + _CARD.heights[key]);
-            }
+            console.log(`[${_MODNAME}] _saveCardHeight() _cardNumber:${__cardNumber} _cardHeight:${__cardHeight}`);
+            _deck.heights[ __cardNumber ] = __cardHeight;
         }
 
-        function _getAndIncCardNumber() {
-            if(_verbose) console.log("["+_MODNAME+"] _getAndIncCardNumber()  _cardNumber = " + _CARD.number);
-            return _CARD.number++;
+        function _getUniqueCardNumber() {
+            return _deck.number++;
         }
         function _deleteCardHeight( __cardNumber ) {
-            delete _CARD.heights[ __cardNumber ];
+            delete _deck.heights[ __cardNumber ];
         }
         function _getCardHeights( __callback ) {
-            __callback( _CARD.heights );
+            __callback( _deck.heights );
         }
 
         function _fadeOutCard(__cardNumber, __timeout) {
             setTimeout( function(){
                 var cardId = _CARD.prefix+__cardNumber;
 
-                _fadeOut( document.getElementById(cardId), 200, (__targetNode) => {
-                    if(_debug) console.log("["+_MODNAME+"] _fadeOutCard() THE ELEMENT IS DELETED :" + __cardNumber);
+                _fadeOut(document.getElementById(cardId), 200, (__targetNode) => {
+                    console.log(`[${_MODNAME}] _fadeOutCard() Popup message #${ __cardNumber} is deleted.`);
                     _deleteCardHeight( __cardNumber );
                     __targetNode.remove();
 
@@ -121,75 +116,118 @@ var PopupMsg = (function() {
 
             }, __timeout);
         }
-        function _showPopupMessage( __message, __styles, __timeout ) {
-            var timeout = (__timeout === undefined)? _CARD.timeout: __timeout;
 
-            var cardWidth = _CARD.width;
-            var cardHeight = _CARD.height;
-            var cardNumber = _getAndIncCardNumber();
-            if(_debug) console.log("["+_MODNAME+"] _showPopupMessage() cardNumber = "+ cardNumber);
+        const _createCard = (__cardNumber, __message, __closable = true, __styles = {}) => {
+            const cardWidth = _CARD.width;
+            let topPosition = _CARD.topMargin;
+            topPosition = _getTopPosition(topPosition);
+            console.log(`[${_MODNAME}] _createCard() cardNumber = ${__cardNumber}`);
 
-            // adaptive card height
-            const baseHeight = 32;
-            const heightPerLine = 15;
-            const nCharPerLine = 58;
-            let nLine = parseInt(__message.length / nCharPerLine) + 1;
-            cardHeight = baseHeight + heightPerLine * nLine;
+            // Create a card to show popup message
+            const cardP = document.createElement("p");
+            const cardId = _CARD.prefix + __cardNumber;
+            cardP.setAttribute("id", cardId);
 
-            if( __styles != undefined && __styles.height != undefined ) { 
-                if(_verbose) console.log("["+_MODNAME+"] _showPopupMessage()  _styles.height = "+  __styles.height);
-                cardHeight = parseInt( __styles.height );
-            } else {
-                if(_verbose) console.log("["+_MODNAME+"] _showPopupMessage() height is not set in the argument.");
+            const cardMsg = document.createElement("span");
+            cardMsg.classList.add("msg");
+
+            const cardMsgContent = document.createElement("span");
+            const cardMsgContentId = _CARD.msgPrefix + __cardNumber;
+            cardMsgContent.setAttribute("id", cardMsgContentId);
+            cardMsgContent.innerHTML = __message;
+
+            cardP.append(cardMsg);
+            cardMsg.append(cardMsgContent);
+
+            // Styles for each element
+            // cardP
+            //    cardMsg
+            //      cardMsgContent
+            cardP.style.cssText = `
+                position: fixed;
+                top: ${topPosition}px;
+                margin-left: ${(window.innerWidth/2 - cardWidth/2)}px;
+                z-index: ${_CARD.z_index};`;
+
+            cardMsg.style.cssText = `
+                display: block; 
+                font: 14px/100% Meiryo, Verdana, Arial, Helvetica, sans-serif;
+                color: white; 
+                width: ${cardWidth}px; 
+                display: block; 
+                padding-top: 16px; 
+                padding-left: 35px;
+                padding-bottom: 17px;
+                border-radius: 5px; 
+                background-color: darkgreen;`;
+
+            cardMsgContent.style.cssText = `
+                display: inline-block;
+                width: ${cardWidth - 60}px;`;
+
+            // Show link in the message in different sytle
+            if(cardMsg.querySelector("a")) cardMsg.querySelector("a").style.cssText = `
+                text-decoration: none;
+                font-weight: bold;
+                font-style: italic;
+                color: yellow; `;
+
+            if(__closable) {
+                const closeBtn = document.createElement("button");
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 2px;
+                    padding: 0;
+                    border: none;
+                    font-size: 1.5em;
+                    font-weight: bold;
+                    background-color: inherit;
+                    color: white;`;
+                closeBtn.textContent = "×";
+                
+                cardMsg.append(closeBtn);
+                cardMsg.style.border = "solid 2px orange";
+
+                closeBtn.addEventListener("click", (e) => {
+                    _fadeOutCard(__cardNumber, 0);
+                });
+            }
+            
+            // Override styles with provided styles
+            if( __styles ) {
+                for(style in __styles) {
+                    cardMsg.style[style] = __styles[style];
+                }
             }
 
-            var topPosi = _CARD.topMargin;
-            topPosi = _getTopPosition(topPosi);
-            if(_verbose) console.log("["+_MODNAME+"] _showPopupMessage() topPosi = "+ topPosi);
+            return cardP;
+        }
 
-            _saveCardHeight( cardNumber, cardHeight); 
-
-            var cardId = _CARD.prefix + cardNumber;
-            let cardMsgId = _CARD.msgPrefix + cardNumber;
-            let cardP = document.createElement("p");
-            cardP.setAttribute("id", cardId);
-            cardP.innerHTML = "<span><a><span id='"+cardMsgId+"'>"+__message+"</span></a></span>";
-
+        function _showPopupMessage(__message, __styles, __timeout) {
+            const timeout = (__timeout === undefined)? _CARD.timeout: __timeout;
+            const cardNumber = _getUniqueCardNumber();
+            const cardP = _createCard(cardNumber, __message, false, __styles);
             if( document.getElementsByTagName("body").length > 0) {
                 document.getElementsByTagName("body")[0].appendChild(cardP);
             } else {
                 document.getElementsByTagName("head")[0].nextElementSibling.appendChild(cardP);
             }
-
-            document.getElementById(cardId).style.cssText = "position: fixed; top: "+topPosi+"px; margin-left: "+ (window.innerWidth/2 - cardWidth/2) + "px; z-index: "+_CARD.z_index +";";
-            // $("#"+cardId).css({
-            //     "position":"fixed", 
-            //     "top":topPosi+"px", 
-            //     "margin-left": ($(window).width()/2 - cardWidth/2) + "px",
-            //     "z-index": _CARD.z_index});
-            document.querySelector("#"+cardId+" a").style.cssText = "display: block; font: 14px/100% Meiryo, Verdana, Arial, Helvetica, sans-serif; text-decoration: none; color: white; ";
-            // $("#"+cardId+" a").css({
-            //     "display":"block",
-            //     "font":"12px/100% Verdana, Arial, Helvetica, sans-serif",
-            //     "text-decoration":"none",
-            //     "color":"white"});
-            document.querySelector("span#"+cardMsgId).style.cssText = "width: "+cardWidth+ "px; height: "+cardHeight+"px; display: block; padding-top: 16px; padding-left: 35px; border-radius: 5px; background-color: darkgreen;";
-            // $("span#"+cardMsgId).css({
-            //     "width": cardWidth+"px",
-            //     "height": cardHeight+"px",
-            //     "display": "block",
-            //     "padding-top": "10px",
-            //     "padding-left": "15px",
-            //     "border-radius": "5px",
-            //     "background-color": "darkgreen"});
-            if( __styles ) {
-                let card = document.querySelector("span#"+cardMsgId);
-                for(style in __styles) {
-                    card.style[style] = __styles[style];
-                }
-            }
+            const clientRect = cardP.getBoundingClientRect();
+            _saveCardHeight( cardNumber, clientRect.height);
 
             _fadeOutCard( cardNumber, timeout );
+        }
+
+        function _showPinnedMessage(__message, __styles) {
+            const cardNumber = _getUniqueCardNumber();
+            const cardP = _createCard(cardNumber, __message, true, __styles);
+            if( document.getElementsByTagName("body").length > 0) {
+                document.getElementsByTagName("body")[0].appendChild(cardP);
+            } else {
+                document.getElementsByTagName("head")[0].nextElementSibling.appendChild(cardP);
+            }
+            const clientRect = cardP.getBoundingClientRect();
+            _saveCardHeight( cardNumber, clientRect.height);
         }
         // End of Private things.
 
@@ -199,22 +237,20 @@ var PopupMsg = (function() {
                 getName: function() {
                     return _getModuleName();
                 },
-                showPopupMessage: function( __message, __styles, __timeout ) {
-                    if(_debug) console.log("["+_MODNAME+"] showPopupMessage() called "+ __message);
+                showPopupMessage: function(__message, __styles, __timeout ) {
+                    console.log(`[${_MODNAME}] showPopupMessage() called ${__message}`);
                     _showPopupMessage( __message, __styles, __timeout);
+                },
+                showPinnedMessage: function(__message, __styles) {
+                    console.log(`[${_MODNAME}] showPinnedMessage() called ${__message}`);
+                    _showPinnedMessage(__message, __styles);
                 }
             };
     } // End of _constructor();
 
     return { 
-        getInstance: function(__debug) {
-            if( !_instance ) {
-                _instance = _constructor();
-            }
-            if( !__debug ) {
-                _instance._debug = __debug;
-            }
-            return _instance;
+        getInstance: function() {
+            return (!_instance)? _constructor(): _instance;
         }
     };
 })();
