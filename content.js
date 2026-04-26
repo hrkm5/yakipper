@@ -71,6 +71,7 @@ const Copy_to_Clipboard = () => {
       try {
         // Gather selected text and format
         let html = "";
+        let textContent = "";
         let sel = window.getSelection();
         console.log(sel);
 
@@ -80,6 +81,7 @@ const Copy_to_Clipboard = () => {
                 container.appendChild(sel.getRangeAt(i).cloneContents());
             }
             html = container.innerHTML;
+            textContent = container.textContent;
         }
         // Write to clipboard 
         const blob = new Blob(['* ' + currenct_title + '<br/>' + current_url + '<br/>' + html],{type : "text/html"});
@@ -88,6 +90,8 @@ const Copy_to_Clipboard = () => {
             [blob.type]: blob
           })
         ]);
+        const message = `${urlntitle}<br/>${textContent}`;
+        _showPopupMessage(message);
         console.log('Page URL & selected text are copied to clipboard');
       } catch (err) {
         console.error('Failed to copy: ', err);
@@ -128,21 +132,8 @@ chrome.runtime.onMessage.addListener(
 function _showPopupMessage(__msg, __style) {
   let header = "Copied to clipboard:\n\n";
   __msg = header + __msg;
-  let line = __msg.split("\n").length;
-  //let line = __msg.length / 60;
-  let baseheight = 23;
-  let height = baseheight * line;
-  if(height<(baseheight*2)) height = baseheight * 2;//70;
-
-  let style = {"height": height+"px", "width":"500px", "font-size": "13px", "color":"white", "background-color":"dimgray", "vertical-align":"middle", "padding-left":"15px"};
-
-  if(__style) {
-      for(const [key, value] of Object.entries(__style)) {
-          style[key] = value;
-      }
-  }
 
   _PMSG.showPopupMessage( __msg.replace(/\n/g, "<br />"), 
-      style,
+      {},
       1500 );
 }
