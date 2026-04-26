@@ -1,6 +1,6 @@
 const BOX_SUPPORT_HOST = "support.box.com" // Box Support Site
 const BOX_DEVELOPER_HOST = "developer.box.com" // Box Developer Site
-const JA_BOX_DEVELOPER_HOST = "ja.developer.box.com" // Japanese Box Developer Site
+const JA_BOX_DEVELOPER_HOST = "developer.box.com/ja" // Japanese Box Developer Site
 
 const _PMSG = PopupMsg.getInstance();
 
@@ -24,14 +24,17 @@ const switch_language = () => {
         console.log('Switched to Japanese ' + redirect_url);
       }
     }
-  } else if (document.location.host == BOX_DEVELOPER_HOST){
-    redirect_url = "https://" + JA_BOX_DEVELOPER_HOST + document.location.pathname;
-    location.href = redirect_url;
-    console.log('Switched to Japanese ' + redirect_url);
-  } else if (document.location.host == JA_BOX_DEVELOPER_HOST) {
-    redirect_url = "https://" + BOX_DEVELOPER_HOST + document.location.pathname;
-    location.href = redirect_url;
-    console.log('Switched to English ' + redirect_url);
+  } else if (document.location.host == BOX_DEVELOPER_HOST) {
+    const lang = document.documentElement.lang;
+    if (lang === 'ja') {
+      redirect_url = "https://" + BOX_DEVELOPER_HOST + document.location.pathname.replace(/^\/ja/, '');
+      location.href = redirect_url;
+      console.log('Switched to English ' + redirect_url);
+    } else if (lang === 'en') {
+      redirect_url = "https://" + JA_BOX_DEVELOPER_HOST + document.location.pathname;
+      location.href = redirect_url;
+      console.log('Switched to Japanese ' + redirect_url);
+    }
   }
   console.log('unavailable site');
 }
