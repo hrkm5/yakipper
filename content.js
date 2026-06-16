@@ -2,7 +2,6 @@ const BOX_SUPPORT_HOST = "support.box.com" // Box Support Site
 const BOX_DEVELOPER_HOST = "developer.box.com" // Box Developer Site
 const JA_BOX_DEVELOPER_HOST = "developer.box.com/ja" // Japanese Box Developer Site
 const BOX_DOCS_HOST = "docs.box.com" // Box Docs Site
-const JA_BOX_DOCS_HOST = "docs.box.com/ja" // Japanese Box Docs Site
 
 const _PMSG = PopupMsg.getInstance();
 
@@ -40,11 +39,11 @@ const switch_language = () => {
   } else if (document.location.host == BOX_DOCS_HOST) {
     const lang = document.documentElement.lang;
     if (lang === 'ja') {
-      redirect_url = "https://" + BOX_DOCS_HOST + document.location.pathname.replace(/^\/ja/, '');
+      redirect_url = "https://" + BOX_DOCS_HOST + document.location.pathname.replace(/^\/ja/, '/en');
       location.href = redirect_url;
       console.log('Switched to English ' + redirect_url);
     } else if (lang === 'en') {
-      redirect_url = "https://" + JA_BOX_DOCS_HOST + document.location.pathname;
+      redirect_url = "https://" + BOX_DOCS_HOST + document.location.pathname.replace(/^\/en/, '/ja');
       location.href = redirect_url;
       console.log('Switched to Japanese ' + redirect_url);
     }
