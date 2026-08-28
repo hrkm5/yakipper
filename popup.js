@@ -6,6 +6,11 @@ const Switch_Language = () => {
   });
 }
 
+const Open_Settings = () => {
+  chrome.runtime.openOptionsPage();
+}
+
 window.addEventListener('load',()=>{
     document.querySelector("#switch").addEventListener("click", Switch_Language)
+    document.querySelector("#settings").addEventListener("click", Open_Settings)
   })

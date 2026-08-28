@@ -66,7 +66,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Clipboard#browser_compatibility
 
 const Copy_to_Clipboard = () => {
   let current_url = location.href
-  let currenct_title = document.title
+  let current_title = document.title
 
   // decodeURL if needed
   if (decodeURI(current_url).length < location.href.length) {
@@ -74,7 +74,9 @@ const Copy_to_Clipboard = () => {
     console.log('decoded URL')
   }
 
-  const urlntitle = '* ' + currenct_title + '\n' + current_url;
+  // Read from the cache, never await: the clipboard write has to stay inside
+  // the user gesture chain.
+  const template = YakipperSettings.activeTemplate();
 
   // if text is being selected, copy it to clilpboard as well
   if(window.getSelection().toString() != ""){
@@ -95,15 +97,20 @@ const Copy_to_Clipboard = () => {
             html = container.innerHTML;
             textContent = container.textContent;
         }
-        // Write to clipboard 
-        const blob = new Blob(['* ' + currenct_title + '<br/>' + current_url + '<br/>' + html],{type : "text/html"});
+
+        const htmlPayload = YakipperSettings.renderPayload(
+          template, { title: current_title, url: current_url, selection: html }, 'html');
+        const textPayload = YakipperSettings.renderPayload(
+          template, { title: current_title, url: current_url, selection: textContent }, 'text');
+
+        // Write both flavors so plain-text targets get the same content.
         await navigator.clipboard.write([
           new ClipboardItem({
-            [blob.type]: blob
+            "text/html": new Blob([htmlPayload], { type: "text/html" }),
+            "text/plain": new Blob([textPayload], { type: "text/plain" })
           })
         ]);
-        const message = `${urlntitle}<br/>${textContent}`;
-        _showPopupMessage(message);
+        _showPopupMessage(textPayload);
         console.log('Page URL & selected text are copied to clipboard');
       } catch (err) {
         console.error('Failed to copy: ', err);
@@ -115,9 +122,11 @@ const Copy_to_Clipboard = () => {
   } else {
     async function copyPageUrl() {
       try {
-        await navigator.clipboard.writeText(urlntitle);
+        const textPayload = YakipperSettings.renderPayload(
+          template, { title: current_title, url: current_url }, 'text');
+        await navigator.clipboard.writeText(textPayload);
         console.log('Page URL is copied to clipboard');
-        _showPopupMessage(urlntitle);
+        _showPopupMessage(textPayload);
       } catch (err) {
         console.error('Failed to copy: ', err);
       }
@@ -141,11 +150,12 @@ chrome.runtime.onMessage.addListener(
     }
 });
 
+// __msg is plain text; the popup renders HTML, so escape it first.
 function _showPopupMessage(__msg, __style) {
   let header = "Copied to clipboard:\n\n";
-  __msg = header + __msg;
+  __msg = YakipperSettings.escapeHtml(header + __msg);
 
-  _PMSG.showPopupMessage( __msg.replace(/\n/g, "<br />"), 
+  _PMSG.showPopupMessage( __msg.replace(/\n/g, "<br />"),
       {},
       1500 );
 }

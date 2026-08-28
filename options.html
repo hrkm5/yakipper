@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Yakipper Settings</title>
+    <link rel="stylesheet" type="text/css" href="options.css">
+    <script src="settings.js"></script>
+    <script src="options.js"></script>
+  </head>
+  <body>
+    <h1>Clipboard format</h1>
+    <p class="hint">Choose how Yakipper formats what it copies with Ctrl(&#8984;)+Shift+Y.</p>
+
+    <form id="format-form">
+      <fieldset id="presets">
+        <legend>Format</legend>
+        <!-- radio options are built by options.js from YakipperSettings.PRESETS -->
+      </fieldset>
+
+      <label class="custom-label" for="custom-template">Custom template</label>
+      <textarea id="custom-template" rows="4" spellcheck="false" disabled></textarea>
+      <p class="hint">
+        Placeholders:
+        <code>{{title}}</code> page title,
+        <code>{{url}}</code> page URL,
+        <code>{{selection}}</code> selected text.
+        If you leave out <code>{{selection}}</code>, any selected text is added at the end.
+      </p>
+
+      <h2>Preview</h2>
+      <p class="hint">Without a selection:</p>
+      <pre id="preview-plain" class="preview"></pre>
+      <p class="hint">With text selected:</p>
+      <pre id="preview-selection" class="preview"></pre>
+
+      <div class="actions">
+        <button type="submit" id="save">Save</button>
+        <button type="button" id="reset">Reset to default</button>
+        <span id="status" class="status" role="status"></span>
+      </div>
+    </form>
+  </body>
+</html>
